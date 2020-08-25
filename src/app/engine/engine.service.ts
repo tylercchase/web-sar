@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { Injectable, ElementRef, OnDestroy, NgZone } from '@angular/core';
+import { Injectable, ElementRef, OnDestroy, NgZone, Input } from '@angular/core';
+import * as GeoTIFF from "geotiff";
 
 @Injectable({ providedIn: 'root' })
 export class EngineService implements OnDestroy {
@@ -35,10 +36,13 @@ export class EngineService implements OnDestroy {
     // create the scene
     this.scene = new THREE.Scene();
 
-    this.camera = new THREE.PerspectiveCamera(
-      75, window.innerWidth / window.innerHeight, 0.1, 1000
-    );
-    this.camera.position.z = 5;
+    const fov = 75;
+    const aspect = window.innerWidth / window.innerHeight;
+    const near = 0.1;
+    const far = 10000;
+    this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    this.camera.position.set(1000, 1000, 1000);
+    this.camera.lookAt(this.scene.position);
     this.scene.add(this.camera);
 
     // soft white light
@@ -49,10 +53,48 @@ export class EngineService implements OnDestroy {
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     this.cube = new THREE.Mesh( geometry, material );
-    this.scene.add(this.cube);
-
+    // this.scene.add(this.cube);
   }
+  
+  setupTerrainModel(dem: File, browse: File) {
+    const readGeoTif = async () => {
+      console.log(dem);
+      const rawTiff  = await GeoTIFF.fromBlob(dem);
+      const tifImage = await rawTiff.getImage();
+     
+      const image = {
+        width: tifImage.getWidth(),
+        height: tifImage.getHeight()
+      };
+      const geometry = new THREE.PlaneGeometry(
+        image.width,
+        image.height,
+        image.width - 1,
+        image.height - 1
+      );
+      const data = await tifImage.readRasters({ interleave: true });
 
+      console.time("parseGeom");
+      geometry.vertices.forEach((geom,index) => {
+        geom.z = (data[index] / 20) * -1;
+      });
+      console.timeEnd("parseGeom");
+      let userImageURL = URL.createObjectURL(browse);
+      let texture = new THREE.TextureLoader().load(userImageURL);
+      const material = new THREE.MeshLambertMaterial({
+        wireframe: false,
+        side: THREE.DoubleSide,
+        map: texture
+      });
+      const mountain = new THREE.Mesh(geometry, material);
+      mountain.position.y = -100;
+      mountain.rotation.x = Math.PI / 2;
+
+      this.scene.add(mountain);
+    };
+
+    readGeoTif();
+  }
   public animate(): void {
     // We have to run this outside angular zones,
     // because it could trigger heavy changeDetection cycles.
