@@ -10,7 +10,7 @@ export class EngineService implements OnDestroy {
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
 
-  private cube: THREE.Mesh;
+  private terrain: THREE.Mesh;
 
   private frameId: number = null;
 
@@ -47,13 +47,9 @@ export class EngineService implements OnDestroy {
 
     // soft white light
     this.light = new THREE.AmbientLight( 0x404040 );
-    this.light.position.z = 30;
+    this.light.position.z = 10;
     this.scene.add(this.light);
 
-    const geometry = new THREE.BoxGeometry(1, 1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    this.cube = new THREE.Mesh( geometry, material );
-    // this.scene.add(this.cube);
   }
   
   setupTerrainModel(dem: File, browse: File) {
@@ -89,8 +85,8 @@ export class EngineService implements OnDestroy {
       const mountain = new THREE.Mesh(geometry, material);
       mountain.position.y = -100;
       mountain.rotation.x = Math.PI / 2;
-
-      this.scene.add(mountain);
+      this.terrain = mountain;
+      this.scene.add(this.terrain);
     };
 
     readGeoTif();
@@ -118,8 +114,7 @@ export class EngineService implements OnDestroy {
       this.render();
     });
 
-    this.cube.rotation.x += 0.01;
-    this.cube.rotation.y += 0.01;
+    this.terrain.rotation.z += 0.01;
     this.renderer.render(this.scene, this.camera);
   }
 
