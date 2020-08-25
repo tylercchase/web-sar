@@ -47,7 +47,7 @@ export class EngineService implements OnDestroy {
 
     // soft white light
     this.light = new THREE.AmbientLight( 0x404040 );
-    this.light.position.z = 10;
+    this.light.position.z = 30;
     this.scene.add(this.light);
 
     const geometry = new THREE.BoxGeometry(1, 1, 1);
