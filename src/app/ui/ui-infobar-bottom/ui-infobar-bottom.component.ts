@@ -13,6 +13,7 @@ export class UiInfobarBottomComponent implements OnInit {
   }
   private dem : File;
   private browse : File;
+
   public demInputEvent(demFile: any){
     this.dem = demFile.target.files[0];
     this.checkToRender();
@@ -23,7 +24,12 @@ export class UiInfobarBottomComponent implements OnInit {
   }
   public checkToRender(){
     if(this.dem && this.browse){
-      this.engineService.setupTerrainModel(this.dem, this.browse);
+      if(this.engineService.terrain){
+        
+      }
+      else{
+        this.engineService.setupTerrainModel(this.dem, this.browse);
+      }
     }
 
   }

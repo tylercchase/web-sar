@@ -10,7 +10,7 @@ export class EngineService implements OnDestroy {
   private scene: THREE.Scene;
   private light: THREE.AmbientLight;
 
-  private terrain: THREE.Mesh;
+  public terrain: THREE.Mesh;
 
   private frameId: number = null;
 
@@ -78,9 +78,8 @@ export class EngineService implements OnDestroy {
       let userImageURL = URL.createObjectURL(browse);
       let texture = new THREE.TextureLoader().load(userImageURL);
       const material = new THREE.MeshLambertMaterial({
-        wireframe: false,
+        wireframe: true,
         side: THREE.DoubleSide,
-        map: texture
       });
       const mountain = new THREE.Mesh(geometry, material);
       mountain.position.y = -100;
