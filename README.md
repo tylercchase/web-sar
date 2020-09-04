@@ -2,6 +2,7 @@
 
 This project is to display Synthetic Aperture Radar in the browser via a 3D model. 
 
+![Example of 3D render](https://raw.githubusercontent.com/tylercchase/web-sar/master/example.png)
 
 ## Three Links
 
